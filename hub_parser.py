@@ -1,13 +1,13 @@
 class Hub:
-    def _init__(self, name: str, x: int, y: int,
-                metadata: dict[str: str] | None, type: str) -> None:
+    def __init__(self, name: str, x: int, y: int,
+                 metadata: dict[str: str] | None, type: str) -> None:
         self.type = type
         self.name = name
         self.x = x
         self.y = y
+        self.metadata = metadata
         self.color = None
         if type == "hub":
-            self.metadata = metadata
             self.zone = "normal"
             self.turn = 1
             self.max_drones = 1
@@ -18,7 +18,7 @@ class Hub:
         self.connections = list[None | Connection]
 
     def metadata_parser(self) -> None:
-        for k, v in self.metadata:
+        for k, v in self.metadata.items():
             if k == "zone":
                 if v == "normal":
                     self.zone = "normal"
