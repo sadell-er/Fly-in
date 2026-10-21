@@ -39,7 +39,11 @@ class Hub:
 
 
 class Connection:
-    def _init__(self, name1: Hub, name2: Hub, max_link_capacity: int) -> None:
+    def __init__(self, name1: Hub, name2: Hub,
+                 max_link_capacity: int | None) -> None:
         self.name1 = name1
         self.name2 = name2
-        self.max = max_link_capacity
+        # TODO subject
+        self.max = 1
+        if max_link_capacity:
+            self.max = max_link_capacity
