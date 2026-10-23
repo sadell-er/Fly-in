@@ -14,8 +14,7 @@ class Hub:
             self.metadata_parser()
         elif metadata["color"]:
             self.color = metadata["color"]
-
-        self.connections = list[None | Connection]
+        self.hub_conn = []
 
     def metadata_parser(self) -> None:
         for k, v in self.metadata.items():
@@ -43,7 +42,6 @@ class Connection:
                  max_link_capacity: int | None) -> None:
         self.name1 = name1
         self.name2 = name2
-        # TODO subject
         self.max = 1
         if max_link_capacity:
             self.max = max_link_capacity

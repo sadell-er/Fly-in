@@ -18,8 +18,6 @@ class Map:
                 for i, r in enumerate(f, start=1):
                     if r[0] != '\n':
                         data = r.split()
-                        two = r.split("[")
-                        w = two[0].split()
                         if data[0] == "#":
                             continue
                         elif data[0] == "nb_drones:":
@@ -86,6 +84,13 @@ class Map:
         if len(self.lst_hub) < 2 or self.lst_conn == 0:
             self.error_exit("not enough parameters")
 
+        for h in self.lst_hub:
+            print(h.name)
+            print("=")
+            for c in h.hub_conn:
+                print(c)
+            print()
+
     def check_hub(self, data: list, i: int) -> str:
         meta_str = ""
         if (len(data) < 3 or len(data) > 7):
@@ -148,10 +153,14 @@ class Map:
         for hub in self.lst_hub:
             if hub.name == temp_conn[0]:
                 check += 1
+                tmp_hub1 = hub
             elif hub.name == temp_conn[1]:
                 check += 1
+                tmp_hub2 = hub
         if check != 2:
             self.error_exit("not the right name of links", line)
+        tmp_hub1.hub_conn.append(temp_conn[1])
+        tmp_hub2.hub_conn.append(temp_conn[0])
         if meta_data:
             temp_lst = meta_data.split()
             if len(temp_lst) != 1:
@@ -165,6 +174,10 @@ class Map:
                     meta_data = int(temp_elem[1])
                 except ValueError:
                     self.error_exit("max link capacity is not a number", line)
+        for conn in self.lst_conn:
+            if conn.name1 == temp_conn[0] or conn.name1 == temp_conn[1]:
+                if conn.name2 == temp_conn[0] or conn.name2 == temp_conn[1]:
+                    self.error_exit("same connection repeated", line)
         conn = Connection(temp_conn[0], temp_conn[1], meta_data)
         return conn
 
