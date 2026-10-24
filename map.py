@@ -99,9 +99,9 @@ class Map:
             if data[4][0] != "[" or data[-1][-1] != "]":
                 self.error_exit("missing metadata brakets", i)
             for elem in data[4:]:
-                meta_str += elem
-            meta_str = meta_str[1:-1]
-        return meta_str
+                meta_str += elem + " "
+            meta_str = meta_str.strip()
+        return meta_str[1:-1]
 
     def check_connection(self, data: list, i: int) -> str:
         meta_str = ""
@@ -111,6 +111,7 @@ class Map:
             if len(data[2:]) > 1:
                 self.error_exit("too many metadata", i)
             meta_str = data[2]
+        meta_str = meta_str.strip()
         return meta_str[1:-1]
 
     def create_hub(self, info: list, meta_data_str: str | None,
@@ -140,8 +141,13 @@ class Map:
             temp_lst = meta_data_str.split()
             for elem in temp_lst:
                 temp_elem = elem.split("=")
+                if len(temp_elem) != 2 or temp_elem[1] == "":
+                    self.error_exit("invalid metadata "
+                                    "(must be 'data'=...)", line)
                 metadata_dict[temp_elem[0]] = temp_elem[1]
+                temp_elem = []
         hub = Hub(name, x, y, metadata_dict, type)
+        hub.metadata_parser(line)
         return hub
 
     def create_connection(self, conn_data: str, meta_data: str | None,
@@ -164,16 +170,20 @@ class Map:
         if meta_data:
             temp_lst = meta_data.split()
             if len(temp_lst) != 1:
-                self.error_exit("too much metadata", line)
+                self.error_exit("too many metadata", line)
             else:
                 temp_elem = temp_lst[0].split("=")
-                if temp_elem[0] != "max_link_capacity":
-                    self.error_exit("not the right name (should be "
-                                    "'max_link_capacity')", line)
+                print(temp_elem[1])
+                if len(temp_elem) != 2 or temp_elem[0] != "max_link_capacity" \
+                   or temp_elem[1] == "":
+                    self.error_exit("wrong metadata (must be "
+                                    "'max_link_capacity'= value)", line)
                 try:
                     meta_data = int(temp_elem[1])
+                    if meta_data <= 0:
+                        raise ValueError
                 except ValueError:
-                    self.error_exit("max link capacity is not a number", line)
+                    self.error_exit("link capacity isn't a valid number", line)
         for conn in self.lst_conn:
             if conn.name1 == temp_conn[0] or conn.name1 == temp_conn[1]:
                 if conn.name2 == temp_conn[0] or conn.name2 == temp_conn[1]:

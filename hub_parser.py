@@ -11,30 +11,44 @@ class Hub:
             self.zone = "normal"
             self.turn = 1
             self.max_drones = 1
-            self.metadata_parser()
-        elif metadata["color"]:
-            self.color = metadata["color"]
         self.hub_conn = []
 
-    def metadata_parser(self) -> None:
+    def metadata_parser(self, line: int) -> None:
+        if self.type != "hub":
+            if self.metadata:
+                if len(self.metadata) != 1:
+                    print(f"[ERROR](line {line}): too many metadata")
+                    exit()
+                key = list(self.metadata.keys())
+                if key[0] != "color":
+                    print(f"[ERROR](line {line}): wrong metadata name "
+                          "(should be 'color')")
+                    exit()
+                self.color = self.metadata["color"]
+            return
         for k, v in self.metadata.items():
             if k == "zone":
                 if v == "normal":
                     self.zone = "normal"
                     self.turn = 1
-                if v == "blocked":
+                elif v == "blocked":
                     self.zone = "blocked"
                     self.turn = 99999
-                if v == "restricted":
+                elif v == "restricted":
                     self.zone = "restricted"
                     self.turn = 2
-                if v == "priority":
+                elif v == "priority":
                     self.zone = "priority"
                     self.turn = 1
-            if k == "color":
+                else:
+                    print(f"[ERROR](line {line}): wrong metadata name")
+            elif k == "color":
                 self.color = v
-            if k == "max_drones":
-                self.max_drones = v
+            elif k == "max_drones":
+                self.mrones = v
+            else:
+                print(f"[ERROR](line {line}): wrong name of metadata")
+                exit()
 
 
 class Connection:
