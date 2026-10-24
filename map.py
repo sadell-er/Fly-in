@@ -18,7 +18,7 @@ class Map:
                 for i, r in enumerate(f, start=1):
                     if r[0] != '\n':
                         data = r.split()
-                        if data[0] == "#":
+                        if r.startswith("#"):
                             continue
                         elif data[0] == "nb_drones:":
                             if flag != 0:
@@ -32,20 +32,15 @@ class Map:
                                     self.error_exit("nb_drones is negative", i)
                             except ValueError:
                                 self.error_exit("nb_drones is not a number", i)
-                            # print(self.nb_drones)
 
                         elif data[0] == "start_hub:":
                             metatmp = self.check_hub(data, i)
                             if flag != 1:
                                 self.error_exit("wrong input order", i)
                             flag = 2
-                            # print(data[1:4])
-                            # print(metatmp)
                             hub = self.create_hub(data[1:4], metatmp,
                                                   "start", i)
                             self.lst_hub.append(hub)
-                            # print("stampa per controllo creazione start hub")
-                            # print(self.lst_hub[indx].metadata)
                             indx += 1
 
                         elif data[0] == "hub:":
@@ -54,8 +49,6 @@ class Map:
                                 self.error_exit("wrong input order", i)
                             hub = self.create_hub(data[1:4], metatmp, "hub", i)
                             self.lst_hub.append(hub)
-                            # print("stampa per controllo creazione hub")
-                            # print(self.lst_hub[indx].metadata)
                             indx += 1
 
                         elif data[0] == "end_hub:":
@@ -65,17 +58,17 @@ class Map:
                             flag = 3
                             hub = self.create_hub(data[1:4], metatmp, "end", i)
                             self.lst_hub.append(hub)
-                            # print("stampa per controllo creazione end hub")
-                            # print(self.lst_hub[indx].metadata)
                             indx += 1
 
                         elif data[0] == "connection:":
+                            if len(data) < 2 or len(data) > 3:
+                                self.error_exit("wrong number of "
+                                                "connection data", i)
                             if flag != 3:
                                 self.error_exit("wrong input order", i)
                             metatmp = self.check_connection(data, i)
                             conn = self.create_connection(data[1], metatmp, i)
                             self.lst_conn.append(conn)
-                            # print(conn.name1, conn.name2, conn.max)
 
                         else:
                             self.error_exit("wrong line text", i)
@@ -84,12 +77,12 @@ class Map:
         if len(self.lst_hub) < 2 or self.lst_conn == 0:
             self.error_exit("not enough parameters")
 
-        for h in self.lst_hub:
-            print(h.name)
-            print("=")
-            for c in h.hub_conn:
-                print(c)
-            print()
+#        for h in self.lst_hub:
+#            print(h.name)
+#            print("=")
+#            for c in h.hub_conn:
+#                print(c)
+#            print()
 
     def check_hub(self, data: list, i: int) -> str:
         meta_str = ""
@@ -173,7 +166,6 @@ class Map:
                 self.error_exit("too many metadata", line)
             else:
                 temp_elem = temp_lst[0].split("=")
-                print(temp_elem[1])
                 if len(temp_elem) != 2 or temp_elem[0] != "max_link_capacity" \
                    or temp_elem[1] == "":
                     self.error_exit("wrong metadata (must be "

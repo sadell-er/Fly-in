@@ -5,8 +5,8 @@ class Hub:
         self.name = name
         self.x = x
         self.y = y
-        self.metadata = metadata
         self.color = None
+        self.metadata = metadata
         if type == "hub":
             self.zone = "normal"
             self.turn = 1
@@ -16,15 +16,18 @@ class Hub:
     def metadata_parser(self, line: int) -> None:
         if self.type != "hub":
             if self.metadata:
-                if len(self.metadata) != 1:
+                if len(self.metadata) > 2:
                     print(f"[ERROR](line {line}): too many metadata")
                     exit()
-                key = list(self.metadata.keys())
-                if key[0] != "color":
-                    print(f"[ERROR](line {line}): wrong metadata name "
-                          "(should be 'color')")
-                    exit()
-                self.color = self.metadata["color"]
+                for k, v in self.metadata.items():
+                    if k == "color":
+                        self.color = v
+                    elif k == "max_drones":
+                        continue
+                    else:
+                        print(f"[ERROR](line {line}): wrong metadata name "
+                              "(should be 'color')")
+                        exit()
             return
         for k, v in self.metadata.items():
             if k == "zone":
@@ -41,11 +44,19 @@ class Hub:
                     self.zone = "priority"
                     self.turn = 1
                 else:
-                    print(f"[ERROR](line {line}): wrong metadata name")
+                    print(f"[ERROR](line {line}): wrong zone name")
+                    exit()
             elif k == "color":
                 self.color = v
             elif k == "max_drones":
-                self.mrones = v
+                try:
+                    n = int(v)
+                    if n <= 0:
+                        raise ValueError
+                except ValueError:
+                    print(f"[ERROR](line {line}): wrong value for max_drones")
+                    exit()
+                self.max_drones = n
             else:
                 print(f"[ERROR](line {line}): wrong name of metadata")
                 exit()
