@@ -71,7 +71,7 @@ class Map:
                             self.error_exit("wrong line text", i)
         except FileNotFoundError:
             self.error_exit("wrong path")
-        if len(self.lst_hub) < 2 or self.lst_conn == 0:
+        if len(self.lst_hub) < 2 or len(self.lst_conn) == 0:
             self.error_exit("not enough parameters")
 
 #        for h in self.lst_hub:
