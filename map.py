@@ -1,4 +1,4 @@
-from hub_parser import Hub, Connection
+from hub import Hub, Connection, Drone
 
 
 class Map:
@@ -9,9 +9,9 @@ class Map:
         self.nb_drones = 0
         self.lst_hub = []
         self.lst_conn = []
+        self.lst_drones = []
 
     def parse(self) -> None:
-        indx = 0
         flag = 0
         try:
             with open(self.path, "r") as f:
@@ -41,7 +41,6 @@ class Map:
                             hub = self.create_hub(data[1:4], metatmp,
                                                   "start", i)
                             self.lst_hub.append(hub)
-                            indx += 1
 
                         elif data[0] == "hub:":
                             metatmp = self.check_hub(data, i)
@@ -49,7 +48,6 @@ class Map:
                                 self.error_exit("wrong input order", i)
                             hub = self.create_hub(data[1:4], metatmp, "hub", i)
                             self.lst_hub.append(hub)
-                            indx += 1
 
                         elif data[0] == "end_hub:":
                             metatmp = self.check_hub(data, i)
@@ -58,7 +56,6 @@ class Map:
                             flag = 3
                             hub = self.create_hub(data[1:4], metatmp, "end", i)
                             self.lst_hub.append(hub)
-                            indx += 1
 
                         elif data[0] == "connection:":
                             if len(data) < 2 or len(data) > 3:
@@ -83,6 +80,13 @@ class Map:
 #            for c in h.hub_conn:
 #                print(c)
 #            print()
+        self.create_drones()
+
+    def create_drones(self) -> None:
+        for i in range(self.nb_drones):
+            drone = Drone(f"D{i + 1}", self.lst_hub[0])
+            self.lst_drones.append(drone)
+            self.lst_hub[0].curr_drones.append(drone)
 
     def check_hub(self, data: list, i: int) -> str:
         meta_str = ""
@@ -189,3 +193,10 @@ class Map:
         else:
             print(f"[ERROR]: {error}")
         exit()
+
+    def view_drones(self) -> None:
+        for d in self.lst_drones:
+            if isinstance(d.position, Hub):
+                print(d.id, d.position.name)
+            elif isinstance(d.position, Connection):
+                print(d.id, d.position.name1, d.position.name2)

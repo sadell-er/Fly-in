@@ -12,6 +12,7 @@ class Hub:
             self.turn = 1
             self.max_drones = 1
         self.hub_conn = []
+        self.curr_drones = []
 
     def metadata_parser(self, line: int) -> None:
         if self.type != "hub":
@@ -68,5 +69,13 @@ class Connection:
         self.name1 = name1
         self.name2 = name2
         self.max = 1
+        self.curr_drones = []
         if max_link_capacity:
             self.max = max_link_capacity
+
+
+class Drone:
+    def __init__(self, id: str, position: Hub | Connection) -> None:
+        self.id = id
+        self.position = position
+        # self.target = target
