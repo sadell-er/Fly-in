@@ -24,7 +24,44 @@ class Algorithm:
 
     def a_star(self, drone: Drone) -> Hub | Connection | None:
         target = Hub
+        i = 0
+        lst_hub = self.map.lst_hub
+        lst_conn = self.map.lst_conn
+        end_hub = lst_hub[-1]
+        curr_hub = lst_hub[-1]
+        for conn in lst_conn:
+            if conn.name2 == end_hub.name:
+                for hub in lst_hub:
+                    if hub.name == conn.name1:
+                        curr_hub = hub
+                while curr_hub != lst_hub[0]:
+                    if lst_conn[i].name2 == curr_hub.name:
+                        for hub in lst_hub:
+                            if hub.name == lst_conn[i].name1:
+                                curr_hub = hub
+                    elif lst_conn[i].name1 == curr_hub.name:
+                        for hub in lst_hub:
+                            if hub.name == lst_conn[i].name2:
+                                curr_hub = hub
+                    else:
+                        continue
+                    i += 1
+
         return target
+
+    def find_max_capacity(self) -> int:
+        max_hub = 0
+        for hub in self.map.lst_hub[1:-1]:
+            if max_hub < hub.max_drones:
+                max_hub = hub.max_drones
+        max_conn = 0
+        for conn in self.map.lst_conn:
+            if max_conn < conn.max_link_capacity:
+                max_conn = conn.max_link_capacity
+        if max_conn <= max_hub:
+            return max_hub
+        else:
+            return max_conn
 
     def move_drone(self, drone: Drone, target: Hub | Connection) -> None:
         try:
