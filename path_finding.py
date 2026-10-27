@@ -27,26 +27,28 @@ class Algorithm:
         i = 0
         lst_hub = self.map.lst_hub
         lst_conn = self.map.lst_conn
-        end_hub = lst_hub[-1]
+        end = lst_hub[-1]
         curr_hub = lst_hub[-1]
-        for conn in lst_conn:
-            if conn.name2 == end_hub.name:
-                for hub in lst_hub:
-                    if hub.name == conn.name1:
-                        curr_hub = hub
-                while curr_hub != lst_hub[0]:
-                    if lst_conn[i].name2 == curr_hub.name:
-                        for hub in lst_hub:
-                            if hub.name == lst_conn[i].name1:
-                                curr_hub = hub
-                    elif lst_conn[i].name1 == curr_hub.name:
-                        for hub in lst_hub:
-                            if hub.name == lst_conn[i].name2:
-                                curr_hub = hub
-                    else:
-                        continue
-                    i += 1
-
+#        for conn in lst_conn:
+#            if conn.hub2.name == end.name or conn.hub1.name == end.name:
+#                for hub in lst_hub:
+#                    if (hub.name == conn.hub1.name and hub.name != end.name) \
+#                       or (hub.name == conn.hub2.name
+#                           and hub.name != end.name):
+#                        curr_hub = hub
+#                while curr_hub != lst_hub[0]:
+#                    if lst_conn[i].hub2.name == curr_hub.name:
+#                        for hub in lst_hub:
+#                            if hub.name == lst_conn[i].hub1.name:
+#                                curr_hub = hub
+#                    elif lst_conn[i].hub1.name == curr_hub.name:
+#                        for hub in lst_hub:
+#                            if hub.name == lst_conn[i].hub2.name:
+#                                curr_hub = hub
+#                    else:
+#                        continue
+#                    i += 1
+#                i = 0
         return target
 
     def find_max_capacity(self) -> int:

@@ -181,8 +181,8 @@ class Map:
                 except ValueError:
                     self.error_exit("link capacity isn't a valid number", line)
         for conn in self.lst_conn:
-            if conn.name1 == temp_conn[0] or conn.name1 == temp_conn[1]:
-                if conn.name2 == temp_conn[0] or conn.name2 == temp_conn[1]:
+            if conn.hub1 == temp_conn[0] or conn.hub1 == temp_conn[1]:
+                if conn.hub2 == temp_conn[0] or conn.hub2 == temp_conn[1]:
                     self.error_exit("same connection repeated", line)
         conn = Connection(temp_conn[0], temp_conn[1], meta_data)
         return conn
@@ -199,4 +199,4 @@ class Map:
             if isinstance(d.position, Hub):
                 print(d.id, d.position.name)
             elif isinstance(d.position, Connection):
-                print(d.id, d.position.name1, d.position.name2)
+                print(d.id, d.position.hub1.name, d.position.hub2.name)
