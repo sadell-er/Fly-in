@@ -23,12 +23,15 @@ class Algorithm:
             self.move_drone(drone, target)
 
     def a_star(self, drone: Drone) -> Hub | Connection | None:
-        target = Hub
+        if isinstance(drone.position, Connection):
+            return drone.position.dest
         i = 0
         lst_hub = self.map.lst_hub
         lst_conn = self.map.lst_conn
         end = lst_hub[-1]
-        curr_hub = lst_hub[-1]
+        start = lst_hub[0]
+        curr_pos = drone.position
+        visited = ()
 #        for conn in lst_conn:
 #            if conn.hub2.name == end.name or conn.hub1.name == end.name:
 #                for hub in lst_hub:

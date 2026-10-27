@@ -14,6 +14,7 @@ class Hub:
         self.hub_conn = []
         self.curr_drones = []
         self.neighbours = []
+        self.cost = 0
 
     def metadata_parser(self, line: int) -> None:
         if self.type != "hub":
@@ -75,6 +76,7 @@ class Connection:
             self.max = max_link_capacity
         hub1.neighbours.append(hub2)
         hub2.neighbours.append(hub1)
+        self.dest = Hub
 
 
 class Drone:
