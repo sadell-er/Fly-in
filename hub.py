@@ -77,6 +77,7 @@ class Connection:
         hub1.neighbours.append(hub2)
         hub2.neighbours.append(hub1)
         self.dest = Hub
+        self.arrow = None
 
 
 class Drone:

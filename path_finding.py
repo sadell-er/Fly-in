@@ -7,7 +7,7 @@ class Algorithm:
         self.map = map
 
     def alg(self) -> None:
-        if self.a_star(self.map.lst_drones[0]) is None:
+        if self.path_finder(self.map.lst_drones[0]) is None:
             print("[ERROR]: end_hub is not connected to start_hub")
             exit()
         turns = 0
@@ -17,12 +17,12 @@ class Algorithm:
 
     def one_turn(self) -> None:
         for drone in self.map.lst_drones:
-            target = self.a_star(drone)
+            target = self.path_finder(drone)
             if target is None:
                 continue
             self.move_drone(drone, target)
 
-    def a_star(self, drone: Drone) -> Hub | Connection | None:
+    def path_finder(self, drone: Drone) -> Hub | Connection | None:
         if isinstance(drone.position, Connection):
             return drone.position.dest
         i = 0
@@ -31,7 +31,14 @@ class Algorithm:
         end = lst_hub[-1]
         start = lst_hub[0]
         curr_pos = drone.position
-        visited = ()
+        visited = []
+        seen = (n for n in curr_pos.neighbours)
+        while seen[0]:
+            if end in seen and end.cost < (h.cost for h in seen):
+
+            
+
+            
 #        for conn in lst_conn:
 #            if conn.hub2.name == end.name or conn.hub1.name == end.name:
 #                for hub in lst_hub:
