@@ -3,6 +3,7 @@ class Hub:
                  metadata: dict[str: str] | None, type: str) -> None:
         self.type = type
         self.name = name
+        self.turn = 0
         self.x = x
         self.y = y
         self.color = None
@@ -84,4 +85,5 @@ class Drone:
     def __init__(self, id: str, position: Hub | Connection) -> None:
         self.id = id
         self.position = position
+        self.path = []
         # self.target = target

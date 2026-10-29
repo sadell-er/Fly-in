@@ -10,8 +10,9 @@ def main() -> None:
     map = Map(hard3)
     map.parse()
     alg = Algorithm(map)
-    alg.move_drone(map.lst_drones[0], map.lst_hub[0])
-    map.view_drones()
+    alg.path_finder(map.lst_drones[0])
+    # alg.move_drone(map.lst_drones[0], map.lst_hub[0])
+    # map.view_drones()
 
     return
 

@@ -162,8 +162,8 @@ class Map:
                 tmp_hub2 = hub
         if check != 2:
             self.error_exit("not the right name of links", line)
-        tmp_hub1.hub_conn.append(temp_conn[1])
-        tmp_hub2.hub_conn.append(temp_conn[0])
+        tmp_hub1.hub_conn.append(tmp_hub2)
+        tmp_hub2.hub_conn.append(tmp_hub1)
         if meta_data:
             temp_lst = meta_data.split()
             if len(temp_lst) != 1:
@@ -181,10 +181,10 @@ class Map:
                 except ValueError:
                     self.error_exit("link capacity isn't a valid number", line)
         for conn in self.lst_conn:
-            if conn.hub1 == temp_conn[0] or conn.hub1 == temp_conn[1]:
-                if conn.hub2 == temp_conn[0] or conn.hub2 == temp_conn[1]:
+            if conn.hub1 == tmp_hub1 or conn.hub1 == tmp_hub2:
+                if conn.hub2 == tmp_hub1 or conn.hub2 == tmp_hub2:
                     self.error_exit("same connection repeated", line)
-        conn = Connection(temp_conn[0], temp_conn[1], meta_data)
+        conn = Connection(tmp_hub1, tmp_hub2, meta_data)
         return conn
 
     def error_exit(self, error: str, line: int | None) -> None:
