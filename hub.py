@@ -16,6 +16,7 @@ class Hub:
         self.curr_drones = []
         self.neighbours = []
         self.cost = 0
+        self.ghost = 0
 
     def metadata_parser(self, line: int) -> None:
         if self.type != "hub":

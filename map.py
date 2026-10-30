@@ -16,59 +16,60 @@ class Map:
         try:
             with open(self.path, "r") as f:
                 for i, r in enumerate(f, start=1):
-                    if r[0] != '\n':
-                        data = r.split()
-                        if r.startswith("#"):
-                            continue
-                        elif data[0] == "nb_drones:":
-                            if flag != 0:
-                                self.error_exit("wrong input order", i)
-                            flag = 1
-                            if len(data) != 2:
-                                self.error_exit("wrong nb_drones input")
-                            try:
-                                self.nb_drones = int(data[1])
-                                if self.nb_drones < 0:
-                                    self.error_exit("nb_drones is negative", i)
-                            except ValueError:
-                                self.error_exit("nb_drones is not a number", i)
+                    if r[0] == '\n':
+                        continue
+                    data = r.split()
+                    if r.startswith("#"):
+                        continue
+                    elif data[0] == "nb_drones:":
+                        if flag != 0:
+                            self.error_exit("wrong input order", i)
+                        flag = 1
+                        if len(data) != 2:
+                            self.error_exit("wrong nb_drones input")
+                        try:
+                            self.nb_drones = int(data[1])
+                            if self.nb_drones < 0:
+                                self.error_exit("nb_drones is negative", i)
+                        except ValueError:
+                            self.error_exit("nb_drones is not a number", i)
 
-                        elif data[0] == "start_hub:":
-                            metatmp = self.check_hub(data, i)
-                            if flag != 1:
-                                self.error_exit("wrong input order", i)
-                            flag = 2
-                            hub = self.create_hub(data[1:4], metatmp,
-                                                  "start", i)
-                            self.lst_hub.append(hub)
+                    elif data[0] == "start_hub:":
+                        metatmp = self.check_hub(data, i)
+                        if flag != 1:
+                            self.error_exit("wrong input order", i)
+                        flag = 2
+                        hub = self.create_hub(data[1:4], metatmp,
+                                                "start", i)
+                        self.lst_hub.append(hub)
 
-                        elif data[0] == "hub:":
-                            metatmp = self.check_hub(data, i)
-                            if flag != 2:
-                                self.error_exit("wrong input order", i)
-                            hub = self.create_hub(data[1:4], metatmp, "hub", i)
-                            self.lst_hub.append(hub)
+                    elif data[0] == "hub:":
+                        metatmp = self.check_hub(data, i)
+                        if flag != 2:
+                            self.error_exit("wrong input order", i)
+                        hub = self.create_hub(data[1:4], metatmp, "hub", i)
+                        self.lst_hub.append(hub)
 
-                        elif data[0] == "end_hub:":
-                            metatmp = self.check_hub(data, i)
-                            if flag != 2:
-                                self.error_exit("wrong input order", i)
-                            flag = 3
-                            hub = self.create_hub(data[1:4], metatmp, "end", i)
-                            self.lst_hub.append(hub)
+                    elif data[0] == "end_hub:":
+                        metatmp = self.check_hub(data, i)
+                        if flag != 2:
+                            self.error_exit("wrong input order", i)
+                        flag = 3
+                        hub = self.create_hub(data[1:4], metatmp, "end", i)
+                        self.lst_hub.append(hub)
 
-                        elif data[0] == "connection:":
-                            if len(data) < 2 or len(data) > 3:
-                                self.error_exit("wrong number of "
-                                                "connection data", i)
-                            if flag != 3:
-                                self.error_exit("wrong input order", i)
-                            metatmp = self.check_connection(data, i)
-                            conn = self.create_connection(data[1], metatmp, i)
-                            self.lst_conn.append(conn)
+                    elif data[0] == "connection:":
+                        if len(data) < 2 or len(data) > 3:
+                            self.error_exit("wrong number of "
+                                            "connection data", i)
+                        if flag != 3:
+                            self.error_exit("wrong input order", i)
+                        metatmp = self.check_connection(data, i)
+                        conn = self.create_connection(data[1], metatmp, i)
+                        self.lst_conn.append(conn)
 
-                        else:
-                            self.error_exit("wrong line text", i)
+                    else:
+                        self.error_exit("wrong line text", i)
         except FileNotFoundError:
             self.error_exit("wrong path")
         if len(self.lst_hub) < 2 or len(self.lst_conn) == 0:

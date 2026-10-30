@@ -17,68 +17,89 @@ class Algorithm:
             if not path:
                 print("[ERROR]: start is not connected to end")
                 exit()
-            drone.path = path.reverse()
+            path.reverse()
+            drone.path = path
             active_lst.append(drone)
-        while len(self.map.lst_hub[-1].curr_drones) != self.map.nb_drones:
-            for drone in active_lst:
-                if drone.path[0].curr_drones()
-            turns += 1
+            print(f"\nDRONE: {drone.id}")
+            print("PATH : ")
+            print(*(p.name for p in path), sep=" - ")
+#        while len(self.map.lst_hub[-1].curr_drones) != self.map.nb_drones:
+#            for drone in active_lst:
+#                if drone.path[0] == self.map.lst_hub[-1]:
+#                    active_lst.remove(drone)
+#                
+#                    # Mettere i droni dentro connection se la dest è
+#                    # restricted e fare i controlli quando li muovo
+#            turns += 1
 
     def path_finder(self, drone: Drone) -> list[Hub | Connection | None]:
         if isinstance(drone.position, Connection):
             return drone.position.dest
         lst_hub = self.map.lst_hub
         end = lst_hub[-1]
+        start = lst_hub[0]
         curr_pos = drone.position
         visited = [curr_pos]
         seen = set(curr_pos.neighbours)
         path = []
         while seen:
-            if end in seen:
-                # da ritornare il path
-                print(end.name)
-                curr_pos = end
-                while curr_pos != lst_hub[0]:
-                    path.append(curr_pos)
-                    for i, hub in enumerate(curr_pos.neighbours):
-                        if i == 0:
-                            back = hub
-                        if hub.cost < back.cost:
-                            back = hub
-                    # check del max capacity, hub.ghost_drones, se len(ghost) 
-                    # = max capacity -> cost +1 e ghost.clear(). Mettere i droni
-                    # dentro connection se la dest è restricted e fare i 
-                    # controlli quando li muovo
-                    curr_pos.cost += 1
-                    if back == lst_hub[0]:
-                        return path
-                    curr_pos = back
-
             for n in curr_pos.neighbours:
-                sum = curr_pos.cost + n.turn
-                if n.cost == 0 or sum < n.cost:
-                    n.cost = sum
+                if n != start:
+                    sum = curr_pos.cost + n.turn
+                    if n.cost == 0 or sum < n.cost:
+                        n.cost = sum
             for i, hub in enumerate(seen):
                 if i == 0:
                     less = hub
                 if hub.cost < less.cost:
                     less = hub
+
+            if end in seen:
+                curr_pos = end
+                tmp_capacity = 0
+                while curr_pos != start:
+                    path.append(curr_pos)
+                    if curr_pos.ghost > tmp_capacity:
+                        tmp_capacity = curr_pos.ghost
+                    for i, hub in enumerate(curr_pos.neighbours):
+                        if i == 0:
+                            back = hub
+                        if hub.cost < back.cost:
+                            back = hub
+                    if back == start:
+                        max = self.find_max_capacity(path)
+                        if max > tmp_capacity:
+                            for hub in path:
+                                hub.cost -= 1
+                                hub.ghost += 1
+                        elif max == tmp_capacity:
+                            for hub in path:
+                                hub.ghost = 0
+                        return path
+                    curr_pos = back
+
             visited.append(less)
             seen.remove(less)
             curr_pos = less
-
-            seen.update(n for n in curr_pos.neighbours if n not in visited)
+            seen.update(n for n in curr_pos.neighbours if n not in visited
+                        and n != start)
         return []
 
     def find_max_capacity(self, path: list[Hub | Connection]) -> int:
-        max_zone = 0
+        i = 0
         for zone in path:
-            if isinstance(zone, Hub):
-                if max_zone > zone.max_drones:
-                    max_zone = zone.max_drones
-            elif isinstance(zone, Connection):
-                if max_zone > zone.max:
-                    max_zone = zone.max
+            if zone != self.map.lst_hub[0] and zone != self.map.lst_hub[-1]:
+                if isinstance(zone, Hub):
+                    if i == 0:
+                        max_zone = zone.max_drones
+                    if max_zone > zone.max_drones:
+                        max_zone = zone.max_drones
+                elif isinstance(zone, Connection):
+                    if i == 0:
+                        max_zone = zone.max
+                    if max_zone > zone.max:
+                        max_zone = zone.max
+                i = 1
         return max_zone
 
     def move_drone(self, drone: Drone, target: Hub | Connection) -> None:
