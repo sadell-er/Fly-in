@@ -34,7 +34,7 @@ class Algorithm:
 
     def path_finder(self, drone: Drone) -> list[Hub | Connection | None]:
         if isinstance(drone.position, Connection):
-            return drone.position.dest
+            return [drone.position.dest]
         lst_hub = self.map.lst_hub
         end = lst_hub[-1]
         start = lst_hub[0]
@@ -42,6 +42,7 @@ class Algorithm:
         visited = [curr_pos]
         seen = set(curr_pos.neighbours)
         path = []
+
         while seen:
             for n in curr_pos.neighbours:
                 if n != start:
@@ -56,11 +57,13 @@ class Algorithm:
 
             if end in seen:
                 curr_pos = end
-                tmp_capacity = 0
+                tmp_capacity = 0 # 
                 while curr_pos != start:
                     path.append(curr_pos)
                     if curr_pos.ghost > tmp_capacity:
                         tmp_capacity = curr_pos.ghost
+                    print(f" ghost = {curr_pos.ghost}")
+                    print(f" tmp = {tmp_capacity}")
                     for i, hub in enumerate(curr_pos.neighbours):
                         if i == 0:
                             back = hub
@@ -68,13 +71,15 @@ class Algorithm:
                             back = hub
                     if back == start:
                         max = self.find_max_capacity(path)
+                        print(f" max = {max}")
                         if max > tmp_capacity:
                             for hub in path:
-                                hub.cost -= 1
                                 hub.ghost += 1
                         elif max == tmp_capacity:
                             for hub in path:
-                                hub.ghost = 0
+                                hub.cost += 1
+                                hub.ghost = 1
+                            print("ss")
                         return path
                     curr_pos = back
 
