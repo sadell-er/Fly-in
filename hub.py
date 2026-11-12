@@ -16,7 +16,6 @@ class Hub:
         self.curr_drones = []
         self.neighbours = []
         self.cost = 0
-        self.ghost = 0
 
     def metadata_parser(self, line: int) -> None:
         if self.type != "hub":
@@ -47,7 +46,7 @@ class Hub:
                     self.turn = 2
                 elif v == "priority":
                     self.zone = "priority"
-                    self.turn = 1
+                    self.turn = 0.9
                 else:
                     print(f"[ERROR](line {line}): wrong zone name")
                     exit()

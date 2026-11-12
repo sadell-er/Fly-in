@@ -23,11 +23,11 @@ class Algorithm:
             print(f"\nDRONE: {drone.id}")
             print("PATH : ")
             print(*(p.name for p in path), sep=" - ")
+            self.create_graph()
 #        while len(self.map.lst_hub[-1].curr_drones) != self.map.nb_drones:
 #            for drone in active_lst:
 #                if drone.path[0] == self.map.lst_hub[-1]:
 #                    active_lst.remove(drone)
-#                
 #                    # Mettere i droni dentro connection se la dest è
 #                    # restricted e fare i controlli quando li muovo
 #            turns += 1
@@ -40,46 +40,43 @@ class Algorithm:
         start = lst_hub[0]
         curr_pos = drone.position
         visited = [curr_pos]
-        seen = set(curr_pos.neighbours)
+        seen = set(n for n in curr_pos.neighbours if n.zone != "blocked")
         path = []
 
         while seen:
             for n in curr_pos.neighbours:
-                if n != start:
+                if n != start and n != "blocked":
                     sum = curr_pos.cost + n.turn
                     if n.cost == 0 or sum < n.cost:
                         n.cost = sum
+                        # si assegna il costo a hub se è 0 o se
+                        # il costo trovato precedentemente è maggiore
+                        # rispetto al costo trovato ora
             for i, hub in enumerate(seen):
                 if i == 0:
                     less = hub
                 if hub.cost < less.cost:
                     less = hub
-
+                    # si prende il vicino con il costo minore e si assegna
+                    # a less
             if end in seen:
+                # se tra i vicini c'è end, cioè il traguardo:
                 curr_pos = end
-                tmp_capacity = 0 # 
+                # si parte da end
                 while curr_pos != start:
+                    # finchè non arriviamo da dove eravamo partiti:
                     path.append(curr_pos)
-                    if curr_pos.ghost > tmp_capacity:
-                        tmp_capacity = curr_pos.ghost
-                    print(f" ghost = {curr_pos.ghost}")
-                    print(f" tmp = {tmp_capacity}")
                     for i, hub in enumerate(curr_pos.neighbours):
                         if i == 0:
                             back = hub
                         if hub.cost < back.cost:
                             back = hub
+                            # si procede all'incontrario prendendo
+                            # l'hub meno costoso
                     if back == start:
-                        max = self.find_max_capacity(path)
-                        print(f" max = {max}")
-                        if max > tmp_capacity:
-                            for hub in path:
-                                hub.ghost += 1
-                        elif max == tmp_capacity:
-                            for hub in path:
-                                hub.cost += 1
-                                hub.ghost = 1
-                            print("ss")
+                        # quando troviamo il punto di partenza:
+                        for h in lst_hub:
+                            h.cost = 0
                         return path
                     curr_pos = back
 
@@ -87,8 +84,22 @@ class Algorithm:
             seen.remove(less)
             curr_pos = less
             seen.update(n for n in curr_pos.neighbours if n not in visited
-                        and n != start)
+                        and n != start and n.zone != "blocked")
         return []
+
+    def create_graph(self) -> dict[str: str]:
+        graph = {}
+
+        for hub in self.map.lst_hub:
+            namein = hub.name + "_IN"
+            nameout = hub.name + "_OUT"
+            graph[namein] = {"dest": nameout, "cost": hub.turn,
+                             "cap_for": hub.max_drones, "cap_back": 0}
+            graph[nameout] = 
+            for neighbour in hub.neighbours:
+                if (neighbour.name in graph.keys()):
+
+        return graph
 
     def find_max_capacity(self, path: list[Hub | Connection]) -> int:
         i = 0

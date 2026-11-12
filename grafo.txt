@@ -1,0 +1,56 @@
+grafo_matematico = {
+    # --- START ---
+    "start_IN": [
+        {"dest": "start_OUT", "costo": 0, "cap_avanti": 99999, "cap_indietro": 0}
+    ],
+    "start_OUT": [
+        # Connessione start-junction (capacità 2) verso junction_IN, e il suo arco fantasma al contrario
+        {"dest": "junction_IN", "costo": 1, "cap_avanti": 2, "cap_indietro": 0}
+    ],
+
+    # --- JUNCTION (max_drones = 2) ---
+    "junction_IN": [
+        # Arco interno dell'hub junction (costo 1, cap 2)
+        {"dest": "junction_OUT", "costo": 1, "cap_avanti": 2, "cap_indietro": 0}
+    ],
+    "junction_OUT": [
+        # Arco fantasma per la connessione con start
+        {"dest": "start_IN", "costo": 1, "cap_avanti": 0, "cap_indietro": 2},
+        
+        # Diramazione verso path_a (capacità default 1)
+        {"dest": "path_a_IN", "costo": 1, "cap_avanti": 1, "cap_indietro": 0},
+        
+        # Diramazione verso path_b (capacità default 1)
+        {"dest": "path_b_IN", "costo": 1, "cap_avanti": 1, "cap_indietro": 0}
+    ],
+
+    # --- PATH_A (max_drones = 1) ---
+    "path_a_IN": [
+        {"dest": "path_a_OUT", "costo": 1, "cap_avanti": 1, "cap_indietro": 0}
+    ],
+    "path_a_OUT": [
+        # Arco fantasma verso junction
+        {"dest": "junction_IN", "costo": 1, "cap_avanti": 0, "cap_indietro": 1},
+        
+        # Connessione verso goal (capacità 1)
+        {"dest": "goal_IN", "costo": 1, "cap_avanti": 1, "cap_indietro": 0}
+    ],
+
+    # --- PATH_B (max_drones = 1) ---
+    "path_b_IN": [
+        {"dest": "path_b_OUT", "costo": 1, "cap_avanti": 1, "cap_indietro": 0}
+    ],
+    "path_b_OUT": [
+        # Arco fantasma verso junction
+        {"dest": "junction_IN", "costo": 1, "cap_avanti": 0, "cap_indietro": 1},
+        
+        # Connessione verso goal (capacità 1)
+        {"dest": "goal_IN", "costo": 1, "cap_avanti": 1, "cap_indietro": 0}
+    ],
+
+    # --- GOAL (END) ---
+    "goal_IN": [
+        {"dest": "goal_OUT", "costo": 0, "cap_avanti": 99999, "cap_indietro": 0}
+    ],
+    "goal_OUT": []
+}
