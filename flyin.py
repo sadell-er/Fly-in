@@ -12,13 +12,13 @@ def main() -> None:
     medium3 = "maps/medium/03_priority_puzzle.txt"
     hard1 = "maps/hard/01_maze_nightmare.txt"
     hard3 = "maps/hard/03_ultimate_challenge.txt"
+    challenger= "maps/challenger/01_the_impossible_dream.txt"
     map = Map(easy2)
     map.parse()
     alg = Algorithm(map)
-    alg.alg()
-    # alg.move_drone(map.lst_drones[0], map.lst_hub[0])
+    alg.algorithm()
+    # alg.print_paths()
     # map.view_drones()
-
     return
 
 

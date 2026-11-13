@@ -8,14 +8,18 @@ class Hub:
         self.y = y
         self.color = None
         self.metadata = metadata
+        self.zone = "normal"
         if type == "hub":
-            self.zone = "normal"
             self.turn = 1
             self.max_drones = 1
+        if type != "start":
+            self.capacity = 1
         self.hub_conn = []
         self.curr_drones = []
         self.neighbours = []
         self.cost = 0
+        self.parent = None
+        self.parent_conn = None
 
     def metadata_parser(self, line: int) -> None:
         if self.type != "hub":
@@ -61,6 +65,7 @@ class Hub:
                     print(f"[ERROR](line {line}): wrong value for max_drones")
                     exit()
                 self.max_drones = n
+                self.capacity = n
             else:
                 print(f"[ERROR](line {line}): wrong name of metadata")
                 exit()
@@ -71,14 +76,15 @@ class Connection:
                  max_link_capacity: int | None) -> None:
         self.hub1 = hub1
         self.hub2 = hub2
-        self.max = 1
+        self.name = f"{hub1.name}-{hub2.name}"
+        self.capacity = 1
+        self.max_drones = 1
         self.curr_drones = []
         if max_link_capacity:
-            self.max = max_link_capacity
+            self.max_drones = max_link_capacity
+            self.capacity = max_link_capacity
         hub1.neighbours.append(hub2)
         hub2.neighbours.append(hub1)
-        self.dest = Hub
-        self.arrow = None
 
 
 class Drone:

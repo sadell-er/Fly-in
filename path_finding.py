@@ -1,135 +1,176 @@
 from map import Map
-from hub import Drone, Hub, Connection
+from hub import Hub, Connection, Drone
+
+
+class Path:
+    def __init__(self, path: list[Hub | Connection], max_drones: int,
+                 cost: int) -> None:
+        self.lst = path
+        self.max_drones = max_drones
+        self.cost = cost
+        self.drones = 0
+        self.time = 0
 
 
 class Algorithm:
     def __init__(self, map: Map) -> None:
         self.map = map
+        self.paths_lst = []
 
-    def alg(self) -> None:
-        if not self.path_finder(self.map.lst_drones[0]):
+    def algorithm(self) -> None:
+        if not self.path_finder():
             print("[ERROR]: end_hub is not connected to start_hub")
             exit()
-        turns = 0
-        active_lst = []
-        for drone in self.map.lst_drones:
-            path = self.path_finder(drone)
+        while True:
+            path = self.path_finder()
             if not path:
-                print("[ERROR]: start is not connected to end")
-                exit()
-            path.reverse()
-            drone.path = path
-            active_lst.append(drone)
-            print(f"\nDRONE: {drone.id}")
-            print("PATH : ")
-            print(*(p.name for p in path), sep=" - ")
-            self.create_graph()
-#        while len(self.map.lst_hub[-1].curr_drones) != self.map.nb_drones:
-#            for drone in active_lst:
-#                if drone.path[0] == self.map.lst_hub[-1]:
-#                    active_lst.remove(drone)
-#                    # Mettere i droni dentro connection se la dest è
-#                    # restricted e fare i controlli quando li muovo
-#            turns += 1
+                break
+        # assegno ad ogni drone il proprio percorso
+        self.assign_drones()
+        turns = 0
+        while len(self.map.lst_hub[-1].curr_drones) != self.map.nb_drones:
+            print(f"\nTurn: {turns + 1}")
+            turns += self.move_drones()
+        print(f"\n\nTOT turns = {turns}")
 
-    def path_finder(self, drone: Drone) -> list[Hub | Connection | None]:
-        if isinstance(drone.position, Connection):
-            return [drone.position.dest]
+    # PATH FINDER #
+
+    def path_finder(self) -> list[Hub | Connection | None]:
         lst_hub = self.map.lst_hub
         end = lst_hub[-1]
         start = lst_hub[0]
-        curr_pos = drone.position
-        visited = [curr_pos]
-        seen = set(n for n in curr_pos.neighbours if n.zone != "blocked")
+        current = start
+        visited = []
+        seen = set(n for n in start.neighbours if n.zone != "blocked"
+                   and n.capacity > 0)
         path = []
 
-        while seen:
-            for n in curr_pos.neighbours:
-                if n != start and n != "blocked":
-                    sum = curr_pos.cost + n.turn
-                    if n.cost == 0 or sum < n.cost:
-                        n.cost = sum
-                        # si assegna il costo a hub se è 0 o se
-                        # il costo trovato precedentemente è maggiore
-                        # rispetto al costo trovato ora
-            for i, hub in enumerate(seen):
-                if i == 0:
-                    less = hub
-                if hub.cost < less.cost:
-                    less = hub
-                    # si prende il vicino con il costo minore e si assegna
-                    # a less
-            if end in seen:
-                # se tra i vicini c'è end, cioè il traguardo:
-                curr_pos = end
-                # si parte da end
-                while curr_pos != start:
-                    # finchè non arriviamo da dove eravamo partiti:
-                    path.append(curr_pos)
-                    for i, hub in enumerate(curr_pos.neighbours):
-                        if i == 0:
-                            back = hub
-                        if hub.cost < back.cost:
-                            back = hub
-                            # si procede all'incontrario prendendo
-                            # l'hub meno costoso
-                    if back == start:
-                        # quando troviamo il punto di partenza:
-                        for h in lst_hub:
-                            h.cost = 0
-                        return path
-                    curr_pos = back
+        # resetto i dati degli hub per il calcolo del percorso
+        for hub in lst_hub:
+            hub.cost = 0
+            hub.parent = None
+            hub.parent_conn = None
 
+        while current != end:
+            # si assegna il costo ad i vicini connessi e con capienza
+            for conn in current.hub_conn:
+                if conn.hub1 == current:
+                    neighbor = conn.hub2
+                else:
+                    neighbor = conn.hub1
+                if neighbor != start and neighbor.zone != "blocked" \
+                   and neighbor.capacity > 0 and conn.capacity > 0:
+                    sum = current.cost + neighbor.turn
+                    if sum < neighbor.cost or neighbor.cost == 0:
+                        neighbor.cost = sum
+                        neighbor.parent = current
+                        neighbor.parent_conn = conn
+
+            # salvo l'hub con il costo minore tra quelli visti finora
+            less = None
+            for hub in seen:
+                if less is None or hub.cost < less.cost:
+                    less = hub
+
+            # Se less è None o 0, non ci sono più strade
+            if less is None or less.cost == 0:
+                return []
+
+            # aggiungo l'hub con il costo minore alla lista dei visitati,
+            # lo rimuovo dai visti e aggiorno seen
             visited.append(less)
             seen.remove(less)
-            curr_pos = less
-            seen.update(n for n in curr_pos.neighbours if n not in visited
-                        and n != start and n.zone != "blocked")
-        return []
+            current = less
+            seen.update(n for n in less.neighbours if n not in visited
+                        and n != start and n.zone != "blocked"
+                        and n.capacity > 0)
 
-    def create_graph(self) -> dict[str: str]:
-        graph = {}
-
-        for hub in self.map.lst_hub:
-            namein = hub.name + "_IN"
-            nameout = hub.name + "_OUT"
-            graph[namein] = {"dest": nameout, "cost": hub.turn,
-                             "cap_for": hub.max_drones, "cap_back": 0}
-            graph[nameout] = 
-            for neighbour in hub.neighbours:
-                if (neighbour.name in graph.keys()):
-
-        return graph
-
-    def find_max_capacity(self, path: list[Hub | Connection]) -> int:
-        i = 0
+        # ricostruisco il percorso
+        while current != start:
+            path.append(current)
+            if current.parent.zone == "restricted":
+                path.append(current.parent_conn)
+            current = current.parent
+        # path.append(start)
+        path.reverse()
+        # trovo la max capacity del percoso e modifico le capacità di tutti
+        # gli elementi del path
+        flow_capacity = self.find_flow_capacity(path)
         for zone in path:
             if zone != self.map.lst_hub[0] and zone != self.map.lst_hub[-1]:
-                if isinstance(zone, Hub):
-                    if i == 0:
-                        max_zone = zone.max_drones
-                    if max_zone > zone.max_drones:
-                        max_zone = zone.max_drones
-                elif isinstance(zone, Connection):
-                    if i == 0:
-                        max_zone = zone.max
-                    if max_zone > zone.max:
-                        max_zone = zone.max
-                i = 1
-        return max_zone
+                zone.capacity -= flow_capacity
 
-    def move_drone(self, drone: Drone, target: Hub | Connection) -> None:
+        final_path = Path(path, flow_capacity, end.cost)
+        self.paths_lst.append(final_path)
+        return path
+
+    def find_flow_capacity(self, path: list[Hub | Connection]) -> int:
+        max_drones = float('inf')
+        for zone in path:
+            if zone != self.map.lst_hub[0] and zone != self.map.lst_hub[-1]:
+                if zone.capacity < max_drones:
+                    max_drones = zone.capacity
+        return max_drones
+
+    def assign_drones(self) -> None:
+        for drone in self.map.lst_drones:
+            min_time = 99999
+            for path in self.paths_lst:
+                path.time = path.cost + (path.drones / path.max_drones)
+                if path.time < min_time:
+                    min_time = path.time
+                    best_path = path
+            best_path.drones += 1
+            drone.path = best_path.lst.copy()
+
+    def move_drones(self) -> int:
+        for drone in self.map.lst_drones:
+            if isinstance(drone.position, Hub):
+                if drone.position.type == "end":
+                    continue
+            target = drone.path[0]
+            if isinstance(target, Hub) and target.type == "end":
+                self.one_move(drone, target)
+            elif len(target.curr_drones) < target.max_drones:
+                self.one_move(drone, target)
+                drone.path.pop(0)
+        return 1
+
+    def one_move(self, drone: Drone, target: Hub | Connection) -> None:
         try:
             drone.position.curr_drones.remove(drone)
         except ValueError as e:
             print(e)
         target.curr_drones.append(drone)
         drone.position = target
-        print("posizione finale")
-        self.print_positions()
+        # print ufficiale
+        print(f"{drone.id}-{drone.position.name}")
 
-    def print_positions(self) -> None:
-        for i in self.map.lst_hub:
-            print(f"[hub name]    = {i.name}")
-            print("[curr drones] = ", end="{")
-            print(*(d.id for d in i.curr_drones), sep=" - ", end="}\n\n")
+# PRINT #
+
+    # stampo i percorsi assegnati ai droni
+    def print_drones_paths(self) -> None:
+        for drone in self.map.lst_drones:
+            if drone.path:
+                print(f"Drone {drone.id} assigned to path: ")
+                self.print_single_path(drone.path)
+            else:
+                print(f"Drone {drone.id} has no assigned path")
+
+    # stampo un singolo percorso con la sua capacità massima
+    def print_single_path(self, path_obj: Path) -> None:
+        print()
+        print()
+        print(f"Path:  (max_drones = {path_obj.max_drones})")
+        for index, p in enumerate(path_obj.lst):
+            if index == len(path_obj.lst) - 1:
+                end = ""
+            else:
+                end = " -> "
+            print(f"{p.name}", end=end)
+
+    def print_paths(self) -> None:
+        for path_obj in self.paths_lst:
+            self.print_single_path(path_obj)
+            print()
+            print(f"Number of drones assigned: {path_obj.drones}")

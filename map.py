@@ -40,7 +40,7 @@ class Map:
                             self.error_exit("wrong input order", i)
                         flag = 2
                         hub = self.create_hub(data[1:4], metatmp,
-                                                "start", i)
+                                              "start", i)
                         self.lst_hub.append(hub)
 
                     elif data[0] == "hub:":
@@ -163,8 +163,6 @@ class Map:
                 tmp_hub2 = hub
         if check != 2:
             self.error_exit("not the right name of links", line)
-        tmp_hub1.hub_conn.append(tmp_hub2)
-        tmp_hub2.hub_conn.append(tmp_hub1)
         if meta_data:
             temp_lst = meta_data.split()
             if len(temp_lst) != 1:
@@ -186,6 +184,8 @@ class Map:
                 if conn.hub2 == tmp_hub1 or conn.hub2 == tmp_hub2:
                     self.error_exit("same connection repeated", line)
         conn = Connection(tmp_hub1, tmp_hub2, meta_data)
+        tmp_hub1.hub_conn.append(conn)
+        tmp_hub2.hub_conn.append(conn)
         return conn
 
     def error_exit(self, error: str, line: int | None) -> None:
